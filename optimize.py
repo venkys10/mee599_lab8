@@ -3,9 +3,10 @@
 import numpy as np
 import random
 import matplotlib.pyplot as plt
+import pdb
 
 def f(x):
-    return x**3 + 5*x
+    return x**3
 
 def optimize_step(f, bounds, n):
 
@@ -36,28 +37,51 @@ def optimize_gradient(f, bounds, epsilon):
     w_n = r
     w_max = 0
     count = 0
-    while diff < epsilon:
+    while diff < epsilon or diff < 0:
+
         gradient = (f(w_n + h) - f(w_n)) / h
         w_max = w_n + step_size * gradient
 
         diff = w_max - w_n
+        
         w_list.append(w_max)
-        w_n = w_max
+        if w_max > f(bounds[1]):
+            w_max = f(bounds[1])
+            w_n = w_max
+        elif w_max < f(bounds[0]):
+            w_max = f(bounds[0])
+            w_n = w_max
+        else:
+            w_n = w_max
         count = count + 1
+    print "count", count
     #plt.plot(range(count), w_list, 'ro')
-    plt.show()
+    #plt.show()
     return "max:", w_max
 
 def optimize_md(f, bounds):
-    for tuples in bounds:
-        for elem in bounds(tuples):
-            max_tup = (f(bounds[elem]))
-            print max_tup
+    max_v = 0
+    max_s = 0
+    for i in range(1000):
+        s = []
+        for min_val, max_val in bounds:
+            s.append(random.uniform(min_val, max_val))
 
+            if f(*s) > max_v:
+                max_v = f(*s)
+                max_s = s
+
+        
+    return max_s
+        # for elem in bounds(tuples):
+        #     max_tup = (f(bounds[elem]))
+        #     print max_tup
+
+        
 
 if __name__ == '__main__':
-    x = optimize_step(f, (1,2), 5)
-    y = optimize_random(f, (1,100), 100)
+    #x = optimize_step(f, (1,2), 5)
+    #y = optimize_random(f, (1,100), 100)
     #print y
-    #print optimize_gradient(f, (1,5), 1e-5)
+    print optimize_gradient(f, (1,5), 1e-5)
     print optimize_md(f, [(2,3), (-2,3), (4,8)])
